@@ -49,7 +49,7 @@ ghrepo rm JsonLee12138/rag <path> -m "message"
 # Deployment Skills Tips
 
 - Run `deployment-config-validate` only for config-dependent stages such as `remote-deploy` or compose push.
-- Use `deployment-config-create` to normalize config and let missing `version` default to `latest`.
+- Use `deployment-config-create` to patch `Makefile` first and maintain `.deploy.env.<ENV_MODE>` files for environment data.
 - Use `deployment-execute` with `--dry-run` before real deploy in sensitive environments.
 - Run `deployment-post-checks` and `deployment-observability-smoke` after deploy to gate rollback decisions.
 - Use `makefile-contract-lint` and `compose-security-lint` before release to catch contract and safety issues early.

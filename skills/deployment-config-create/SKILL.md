@@ -1,19 +1,37 @@
 ---
 name: deployment-config-create
-description: Generate normalized deployment configuration artifacts. Use when tasks involve creating environment-specific deployment files from base metadata after validation.
+description: Configure deployment files directly by updating Makefile, Dockerfile, and docker-compose files. Use when setting up or adjusting deployment configuration with Makefile-first workflow; optional JSON input is supported but not required.
 ---
 
 # Deployment Config Create
 
-1. Read source metadata JSON.
-2. Run `scripts/create_config.py <input-json> <output-json>`.
-3. Ensure defaults are applied deterministically.
-4. Return output path for deployment execution stage.
+1. Prefer direct Makefile configuration for environment behavior and deploy flow.
+2. Use JSON profile only when caller explicitly wants batched variable input.
+3. Run `scripts/create_config.py` to patch or create:
+- `Makefile` deployment block (variables, `FULL_REGISTRY_IMAGE`, core targets)
+- `Dockerfile` template (if missing)
+- `docker-compose.local.yaml`, `docker-compose.test.yaml`, `docker-compose.yaml` templates (if missing)
+- `docker-compose.<custom-env>.yaml` for custom environments when provided
+- `.deploy.env.test`, `.deploy.env.prod`, `.deploy.env.<custom-env>` environment data files
+4. Keep changes idempotent via managed markers.
 5. Ensure deployment skill usage tips exist in root `AGENTS.md` and `CLAUDE.md`.
 6. Write tips inside `<!-- DEPLOYMENT:START -->` and `<!-- DEPLOYMENT:END -->` markers.
 7. If markers already exist, update only content within the markers.
 
 ## Command
 ```bash
-python3 skills/deployment-config-create/scripts/create_config.py base.json deploy.json
+python3 skills/deployment-config-create/scripts/create_config.py \
+  --root . \
+  --app-name demo-service \
+  --registry-host registry.example.com \
+  --remote-user deploy \
+  --remote-host 10.0.0.8 \
+  --test-remote-host 10.0.1.8 \
+  --prod-remote-host 10.0.2.8 \
+  --custom-env perf
+
+# Optional JSON profile input
+python3 skills/deployment-config-create/scripts/create_config.py \
+  --root . \
+  --from-json deploy-profile.json
 ```
