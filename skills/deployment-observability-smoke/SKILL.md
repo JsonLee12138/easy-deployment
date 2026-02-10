@@ -1,15 +1,17 @@
 ---
 name: deployment-observability-smoke
-description: Run post-deployment observability and smoke checks including container state, health endpoint, log scan, and critical path checks.
+description: Run post-deployment smoke checks with Makefile targets (`remote-status`, `remote-logs`) plus optional health URL checks. Use after deployment to verify runtime state before final acceptance.
 ---
 
 # Deployment Observability Smoke
 
-1. Check container up status.
-2. Check health endpoint result.
-3. Check startup logs for fatal errors.
-4. Report pass/fail summary.
+1. Run remote status check from Makefile.
+2. Run remote logs scan for fatal patterns.
+3. Optionally check health URL.
+4. Return structured pass/fail result.
 
+## Command
 ```bash
-python3 skills/deployment-observability-smoke/scripts/smoke.py smoke_input.json
+python3 skills/deployment-observability-smoke/scripts/smoke.py --root . --env-mode test --dry-run
+python3 skills/deployment-observability-smoke/scripts/smoke.py --root . --env-mode prod --health-url http://127.0.0.1:8080/healthz
 ```

@@ -1,17 +1,16 @@
 ---
 name: deployment-execute
-description: Execute deployment from generated configuration with optional dry-run mode. Use when tasks involve controlled rollout execution and deployment stage logging.
+description: Execute deployment through Makefile targets with ENV_MODE and optional VERSION overrides. Use when running real deployment or dry-run preview in Makefile-first workflow.
 ---
 
 # Deployment Execute
 
-1. Ensure config passed validation.
-2. Run `scripts/deploy.py <config-json> [--dry-run]`.
-3. In dry-run, print planned actions only.
-4. In real mode, execute deployment command and return status.
+1. Run deployment using `make ENV_MODE=<env> <target>`.
+2. Support dry-run preview using `make -n`.
+3. Return command output and status in structured JSON.
 
 ## Command
 ```bash
-python3 skills/deployment-execute/scripts/deploy.py deploy.json --dry-run
-python3 skills/deployment-execute/scripts/deploy.py deploy.json
+python3 skills/deployment-execute/scripts/deploy.py --root . --env-mode test --target remote-deploy --dry-run
+python3 skills/deployment-execute/scripts/deploy.py --root . --env-mode prod --target remote-deploy --version v2026.02.10.1
 ```

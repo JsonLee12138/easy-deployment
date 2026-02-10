@@ -1,14 +1,16 @@
 ---
 name: deployment-version-policy
-description: Enforce deployment version policy with support for default latest. Use when checking version input rules, defaults, and release traceability behavior.
+description: Normalize and validate deployment version under Makefile-first workflow. Use when reading or validating version for test/prod/custom environments before make-based deployment.
 ---
 
 # Deployment Version Policy
 
-1. Run policy check for environment and version.
-2. Allow missing version by defaulting to `latest`.
-3. Output normalized version for downstream steps.
+1. Resolve version from CLI or Makefile default.
+2. Validate version format.
+3. Optionally disallow `latest` for prod.
 
+## Command
 ```bash
-python3 skills/deployment-version-policy/scripts/check_version.py --env prod --version latest
+python3 skills/deployment-version-policy/scripts/check_version.py --root . --env-mode prod
+python3 skills/deployment-version-policy/scripts/check_version.py --root . --env-mode prod --disallow-latest-prod
 ```

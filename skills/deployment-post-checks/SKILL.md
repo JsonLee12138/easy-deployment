@@ -1,15 +1,16 @@
 ---
 name: deployment-post-checks
-description: Run post-deployment health checks and trigger rollback decisions. Use when tasks require release verification, rollback criteria, and deployment safety controls.
+description: Decide deployment success or rollback from smoke-check and optional metrics data. Use when gating final rollout and rollback decisions after deployment.
 ---
 
 # Deployment Post Checks
 
-1. Run health verification after deployment.
-2. If thresholds fail, mark rollback required.
-3. Return machine-readable status for orchestration.
+1. Read smoke result JSON.
+2. Optionally merge metrics result JSON.
+3. Apply thresholds and return success or rollback-required status.
 
 ## Command
 ```bash
-python3 skills/deployment-post-checks/scripts/post_check.py deploy_result.json
+python3 skills/deployment-post-checks/scripts/post_check.py --smoke-file smoke.json
+python3 skills/deployment-post-checks/scripts/post_check.py --smoke-file smoke.json --metrics-file metrics.json --min-success-rate 99 --max-p95-latency 500
 ```

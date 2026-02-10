@@ -1,14 +1,15 @@
 ---
 name: makefile-contract-lint
-description: Lint Makefile command contract and required deployment targets/variables. Use when validating deployment Makefile consistency with agreed command contracts.
+description: Lint the Makefile deployment contract for Makefile-first workflow with ENV_MODE and .deploy.env.<ENV_MODE>. Use when validating required deployment variables, targets, and FULL_REGISTRY_IMAGE composition.
 ---
 
 # Makefile Contract Lint
 
-1. Check required targets.
-2. Check required variables and expression usage.
-3. Return actionable lint failures.
+1. Validate deployment markers and required variables.
+2. Validate required Makefile targets for build/push/deploy/help.
+3. Validate `FULL_REGISTRY_IMAGE` variable composition rule.
 
+## Command
 ```bash
-python3 skills/makefile-contract-lint/scripts/lint_makefile.py Makefile
+python3 skills/makefile-contract-lint/scripts/lint_makefile.py --root .
 ```

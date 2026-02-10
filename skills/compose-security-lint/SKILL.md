@@ -1,14 +1,16 @@
 ---
 name: compose-security-lint
-description: Lint Docker Compose deployment safety and security rules. Use when validating image explicitness, restart policy, healthcheck, and external network declarations.
+description: Lint Docker Compose files for Makefile-first deployment environments. Use when validating local/test/prod/custom compose files for image/build declaration, restart, healthcheck, logging, and external network settings.
 ---
 
 # Compose Security Lint
 
-1. Parse compose yaml as text checks.
-2. Enforce minimal required safety fields.
-3. Return failures with missing keys.
+1. Select compose file by `ENV_MODE` or lint all compose files.
+2. Validate safety baseline fields.
+3. Enforce extra production checks (`deploy.resources`).
 
+## Command
 ```bash
-python3 skills/compose-security-lint/scripts/lint_compose.py docker-compose.yaml
+python3 skills/compose-security-lint/scripts/lint_compose.py --root . --env-mode prod
+python3 skills/compose-security-lint/scripts/lint_compose.py --root . --all
 ```
