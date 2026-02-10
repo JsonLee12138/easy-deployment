@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Lint Makefile deployment contract for Makefile-first workflow.")
+    parser = argparse.ArgumentParser(description="Lint Makefile contract for common+env override deployment workflow.")
     parser.add_argument("--root", default=".")
     parser.add_argument("--makefile", default="Makefile")
     args = parser.parse_args()
@@ -29,15 +29,19 @@ def main() -> int:
         "USE_SUDO",
         "SUDO_CMD",
         "MONOREPO_ROOT",
+        "DEPLOY_COMMON_FILE",
         "DEPLOY_ENV_FILE",
+        "-include $(DEPLOY_COMMON_FILE)",
         "-include $(DEPLOY_ENV_FILE)",
         "FULL_REGISTRY_IMAGE",
+        "REMOTE_PORT",
     ]
     for item in required_strings:
         if item not in text:
             errors.append(f"missing required definition: {item}")
 
     required_targets = [
+        "check-config:",
         "test:",
         "build-arm:",
         "build:",
@@ -60,6 +64,10 @@ def main() -> int:
     full_expr = re.search(r"FULL_REGISTRY_IMAGE\s*=\s*\$\(REGISTRY_HOST\)/\$\(APP_NAME\):\$\(VERSION\)", text)
     if not full_expr:
         errors.append("FULL_REGISTRY_IMAGE must be composed from REGISTRY_HOST/APP_NAME/VERSION")
+    if "ssh -p $(REMOTE_PORT)" not in text:
+        errors.append("remote commands must use ssh -p $(REMOTE_PORT)")
+    if "scp -P $(REMOTE_PORT)" not in text:
+        errors.append("compose upload must use scp -P $(REMOTE_PORT)")
 
     if errors:
         print(json.dumps({"status": "error", "errors": errors}, ensure_ascii=True, indent=2))

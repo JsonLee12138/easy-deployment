@@ -33,7 +33,7 @@ def parse_app_name(makefile: Path) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Archive deployment record with environment context.")
+    parser = argparse.ArgumentParser(description="Archive deployment record with merged common+env context.")
     parser.add_argument("--root", default=".")
     parser.add_argument("--env-mode", default="test")
     parser.add_argument("--version", default="latest")
@@ -45,8 +45,13 @@ def main() -> int:
 
     root = Path(args.root).resolve()
     env_mode = args.env_mode.strip().lower()
+
+    common_file = root / ".deploy.env.common"
     env_file = root / f".deploy.env.{env_mode}"
+    common_values = parse_env_file(common_file)
     env_values = parse_env_file(env_file)
+    merged = dict(common_values)
+    merged.update(env_values)
 
     record = {
         "record_id": str(uuid.uuid4()),
@@ -57,8 +62,9 @@ def main() -> int:
         "actor": args.actor,
         "result": args.result,
         "reason": args.reason,
+        "common_file": common_file.name,
         "env_file": env_file.name,
-        "env_values": env_values,
+        "env_values": merged,
     }
 
     archive_path = root / args.archive_file

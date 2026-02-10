@@ -5,9 +5,29 @@ import sys
 from pathlib import Path
 
 
-def compose_file_for_env(env_mode: str) -> str:
+def parse_env_file(path: Path) -> dict:
+    values: dict[str, str] = {}
+    if not path.exists():
+        return values
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip()
+    return values
+
+
+def compose_file_for_env(root: Path, env_mode: str) -> str:
+    common = parse_env_file(root / ".deploy.env.common")
+    env = parse_env_file(root / f".deploy.env.{env_mode}")
+    merged = dict(common)
+    merged.update(env)
+
     if env_mode == "local":
-        return "docker-compose.local.yaml"
+        return env.get("LOCAL_COMPOSE_FILE", "docker-compose.local.yaml")
+    if merged.get("LOCAL_COMPOSE_FILE"):
+        return merged["LOCAL_COMPOSE_FILE"]
     if env_mode == "test":
         return "docker-compose.test.yaml"
     if env_mode == "prod":
@@ -41,38 +61,40 @@ def main() -> int:
     parser.add_argument("--root", default=".")
     parser.add_argument("--env-mode", default="test")
     parser.add_argument("--compose-file")
-    parser.add_argument("--all", action="store_true", help="Lint local/test/prod compose files and detected custom compose files.")
+    parser.add_argument("--all", action="store_true", help="Lint all compose files inferred from .deploy.env.*.")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
     checks: list[tuple[str, Path, str]] = []
 
     if args.all:
-        checks.extend(
-            [
-                ("local", root / "docker-compose.local.yaml", "docker-compose.local.yaml"),
-                ("test", root / "docker-compose.test.yaml", "docker-compose.test.yaml"),
-                ("prod", root / "docker-compose.yaml", "docker-compose.yaml"),
-            ]
-        )
-        for path in sorted(root.glob("docker-compose.*.yaml")):
-            name = path.name
-            if name in {"docker-compose.local.yaml", "docker-compose.test.yaml"}:
+        env_files = sorted(root.glob(".deploy.env.*"))
+        env_names = []
+        for path in env_files:
+            name = path.name.replace(".deploy.env.", "", 1)
+            if name == "common":
                 continue
-            env = name.removeprefix("docker-compose.").removesuffix(".yaml")
-            if env == "":
+            env_names.append(name)
+        if "local" not in env_names:
+            env_names.append("local")
+
+        seen = set()
+        for env in env_names:
+            compose_name = compose_file_for_env(root, env)
+            key = (env, compose_name)
+            if key in seen:
                 continue
-            if env not in {"local", "test", "prod"}:
-                checks.append((env, path, name))
+            seen.add(key)
+            checks.append((env, root / compose_name, compose_name))
     else:
         env_mode = args.env_mode.strip().lower()
-        file_name = args.compose_file or compose_file_for_env(env_mode)
+        file_name = args.compose_file or compose_file_for_env(root, env_mode)
         checks.append((env_mode, root / file_name, file_name))
 
     errors: list[str] = []
     checked: list[str] = []
     for env_mode, path, file_name in checks:
-        checked.append(file_name)
+        checked.append(f"{env_mode}:{file_name}")
         if not path.exists():
             errors.append(f"missing compose file: {file_name}")
             continue

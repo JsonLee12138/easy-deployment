@@ -1,13 +1,14 @@
 ---
 name: deployment-env-isolation-check
-description: Validate environment isolation boundaries using .deploy.env.* files in Makefile-first deployment projects. Use when ensuring test/prod/custom do not share the same registry and remote host identity.
+description: Validate environment isolation using merged values from .deploy.env.common and .deploy.env.<ENV_MODE>. Use when ensuring test/prod/custom do not share the same registry, remote host, user, and port identity.
 ---
 
 # Deployment Env Isolation Check
 
-1. Read `.deploy.env.*` files in project root.
-2. Compare environment identities across test/prod/custom.
-3. Fail when non-prod and prod targets are identical.
+1. Read `.deploy.env.common` and all `.deploy.env.<env>` files.
+2. Merge common defaults with per-env overrides.
+3. Compare environment identities (`registry + user + host + port`).
+4. Fail when non-prod and prod identities are identical.
 
 ## Command
 ```bash

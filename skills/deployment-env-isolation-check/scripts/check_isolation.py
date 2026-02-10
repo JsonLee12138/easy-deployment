@@ -19,42 +19,42 @@ def parse_env_file(path: Path) -> dict:
     return out
 
 
-def env_identity(env_name: str, values: dict) -> tuple[str, str, str]:
-    if env_name == "test":
-        return (
-            values.get("TEST_REGISTRY_HOST", ""),
-            values.get("TEST_REMOTE_USER", ""),
-            values.get("TEST_REMOTE_HOST", ""),
-        )
-    if env_name == "prod":
-        return (
-            values.get("PROD_REGISTRY_HOST", ""),
-            values.get("PROD_REMOTE_USER", ""),
-            values.get("PROD_REMOTE_HOST", ""),
-        )
+def identity(values: dict) -> tuple[str, str, str, str]:
     return (
         values.get("REGISTRY_HOST", ""),
         values.get("REMOTE_USER", ""),
         values.get("REMOTE_HOST", ""),
+        values.get("REMOTE_PORT", "22"),
     )
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check deployment environment isolation from .deploy.env.* files.")
+    parser = argparse.ArgumentParser(description="Check environment isolation using common + env override files.")
     parser.add_argument("--root", default=".")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
-    files = sorted(glob.glob(str(root / ".deploy.env.*")))
-    if not files:
-        print(json.dumps({"status": "error", "errors": ["no .deploy.env.* files found"]}, ensure_ascii=True, indent=2))
+    common_file = root / ".deploy.env.common"
+    if not common_file.exists():
+        print(json.dumps({"status": "error", "errors": ["missing .deploy.env.common"]}, ensure_ascii=True, indent=2))
         return 1
 
-    identities: dict[str, tuple[str, str, str]] = {}
-    for path_str in files:
-        path = Path(path_str)
+    common = parse_env_file(common_file)
+
+    files = sorted(glob.glob(str(root / ".deploy.env.*")))
+    env_files = [Path(x) for x in files if not x.endswith(".deploy.env.common")]
+    if not env_files:
+        print(json.dumps({"status": "error", "errors": ["no .deploy.env.<env> files found"]}, ensure_ascii=True, indent=2))
+        return 1
+
+    merged_by_env: dict[str, dict[str, str]] = {}
+    identities: dict[str, tuple[str, str, str, str]] = {}
+    for path in env_files:
         env_name = path.name.replace(".deploy.env.", "", 1)
-        identities[env_name] = env_identity(env_name, parse_env_file(path))
+        merged = dict(common)
+        merged.update(parse_env_file(path))
+        merged_by_env[env_name] = merged
+        identities[env_name] = identity(merged)
 
     errors: list[str] = []
     prod = identities.get("prod")
@@ -75,7 +75,7 @@ def main() -> int:
         print(json.dumps({"status": "error", "errors": errors, "identities": identities}, ensure_ascii=True, indent=2))
         return 1
 
-    print(json.dumps({"status": "ok", "identities": identities}, ensure_ascii=True, indent=2))
+    print(json.dumps({"status": "ok", "common_file": common_file.name, "identities": identities}, ensure_ascii=True, indent=2))
     return 0
 
 

@@ -1,12 +1,12 @@
 ---
 name: deployment-record-archive
-description: Archive deployment records with ENV_MODE, version, actor, result, and environment context for Makefile-first deployment workflow.
+description: Archive deployment records with merged common+environment config context (including remote port) for Makefile-first deployment workflow.
 ---
 
 # Deployment Record Archive
 
-1. Build a deployment record from CLI inputs and environment context.
-2. Append record to a JSONL archive file.
+1. Read `.deploy.env.common` and `.deploy.env.<ENV_MODE>`.
+2. Merge context and archive deployment result into JSONL.
 3. Return record ID and archive location.
 
 ## Command

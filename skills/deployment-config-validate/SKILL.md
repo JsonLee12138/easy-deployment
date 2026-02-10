@@ -1,14 +1,15 @@
 ---
 name: deployment-config-validate
-description: Validate Makefile-first deployment configuration for config-dependent stages. Use when a stage such as push-compose-file, remote-deploy, remote-status, or remote-logs needs environment config from Makefile and .deploy.env.<ENV_MODE>.
+description: Validate deployment configuration from .deploy.env.common and .deploy.env.<ENV_MODE> for config-dependent stages. Use before make-based deploy actions to catch missing variables, invalid ports, or compose issues.
 ---
 
 # Deployment Config Validate
 
 1. Validate only config-dependent stages.
 2. Ensure Makefile deployment block and required targets exist.
-3. Ensure environment data and compose file exist for selected `ENV_MODE`.
-4. Return structured error details and block execution on failure.
+3. Ensure `.deploy.env.common` and `.deploy.env.<ENV_MODE>` exist and merge correctly.
+4. Ensure required keys and `REMOTE_PORT` are valid.
+5. Validate compose file for stages that depend on compose.
 
 ## Command
 ```bash

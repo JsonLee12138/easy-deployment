@@ -1,13 +1,14 @@
 ---
 name: makefile-contract-lint
-description: Lint the Makefile deployment contract for Makefile-first workflow with ENV_MODE and .deploy.env.<ENV_MODE>. Use when validating required deployment variables, targets, and FULL_REGISTRY_IMAGE composition.
+description: Lint Makefile contract for common+env override deployment workflow. Use when validating deployment variables, include rules, remote port handling, and required targets.
 ---
 
 # Makefile Contract Lint
 
 1. Validate deployment markers and required variables.
-2. Validate required Makefile targets for build/push/deploy/help.
-3. Validate `FULL_REGISTRY_IMAGE` variable composition rule.
+2. Validate common+env include strategy.
+3. Validate required Makefile targets.
+4. Validate `FULL_REGISTRY_IMAGE` composition and `ssh/scp` port usage.
 
 ## Command
 ```bash
