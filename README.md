@@ -64,18 +64,33 @@ This skill set uses a Makefile-first workflow with two-layer config files:
 ### 1) Generate baseline deployment config
 
 ```bash
+export APP_NAME="<app-name>"
+export REGISTRY_HOST="<registry-host>"
+export REMOTE_USER="<remote-user>"
+export REMOTE_HOST="<remote-host>"
+export REMOTE_PORT="<remote-port>"
+export TEST_REMOTE_HOST="<test-remote-host>"
+export TEST_REMOTE_PORT="<test-remote-port>"
+export PROD_REGISTRY_HOST="<prod-registry-host>"
+export PROD_REMOTE_USER="<prod-remote-user>"
+export PROD_REMOTE_HOST="<prod-remote-host>"
+export PROD_REMOTE_PORT="<prod-remote-port>"
+export CUSTOM_ENV="<custom-env>"
+
 python3 skills/deployment-config-create/scripts/create_config.py \
   --root . \
-  --app-name ag-ui-demo \
-  --registry-host 192.168.3.77:15000 \
-  --remote-user root \
-  --remote-host 192.168.3.77 \
-  --remote-port 2222 \
-  --prod-registry-host crpi-g8b526h09u8d9jbl.cn-chengdu.personal.cr.aliyuncs.com/inner-fire \
-  --prod-remote-user wtai \
-  --prod-remote-host fireRelease \
-  --prod-remote-port 22022 \
-  --custom-env perf
+  --app-name "$APP_NAME" \
+  --registry-host "$REGISTRY_HOST" \
+  --remote-user "$REMOTE_USER" \
+  --remote-host "$REMOTE_HOST" \
+  --remote-port "$REMOTE_PORT" \
+  --test-remote-host "$TEST_REMOTE_HOST" \
+  --test-remote-port "$TEST_REMOTE_PORT" \
+  --prod-registry-host "$PROD_REGISTRY_HOST" \
+  --prod-remote-user "$PROD_REMOTE_USER" \
+  --prod-remote-host "$PROD_REMOTE_HOST" \
+  --prod-remote-port "$PROD_REMOTE_PORT" \
+  --custom-env "$CUSTOM_ENV"
 ```
 
 ### 2) Validate config for a deployment stage

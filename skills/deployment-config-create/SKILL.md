@@ -21,14 +21,16 @@ description: Configure deployment files with a common baseline file plus environ
 ```bash
 python3 skills/deployment-config-create/scripts/create_config.py \
   --root . \
-  --app-name demo-service \
-  --registry-host registry.example.com \
-  --remote-port 22 \
-  --test-remote-host 10.0.1.8 \
-  --test-remote-port 2222 \
-  --prod-remote-host 10.0.2.8 \
-  --prod-remote-port 22022 \
-  --custom-env perf
+  --app-name "$APP_NAME" \
+  --registry-host "$REGISTRY_HOST" \
+  --remote-user "$REMOTE_USER" \
+  --remote-host "$REMOTE_HOST" \
+  --remote-port "$REMOTE_PORT" \
+  --test-remote-host "$TEST_REMOTE_HOST" \
+  --test-remote-port "$TEST_REMOTE_PORT" \
+  --prod-remote-host "$PROD_REMOTE_HOST" \
+  --prod-remote-port "$PROD_REMOTE_PORT" \
+  --custom-env "$CUSTOM_ENV"
 
 # Optional JSON profile input
 python3 skills/deployment-config-create/scripts/create_config.py --root . --from-json deploy-profile.json

@@ -13,5 +13,5 @@ description: Run post-deployment smoke checks with Makefile targets (`remote-sta
 ## Command
 ```bash
 python3 skills/deployment-observability-smoke/scripts/smoke.py --root . --env-mode test --dry-run
-python3 skills/deployment-observability-smoke/scripts/smoke.py --root . --env-mode prod --health-url http://127.0.0.1:8080/healthz
+python3 skills/deployment-observability-smoke/scripts/smoke.py --root . --env-mode prod --health-url "$HEALTH_URL"
 ```
